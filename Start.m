@@ -63,9 +63,15 @@ for k = 1 : 4
     % dimensions to map to, minimizing the classification error for
     % selected test- and trainingsets
     for i = 1 : n-1
+        % The function fisherm constructs a mapping, such that trainset is
+        % mapped to i (up to a maximum of n-1) dimensions.
         m_fisher = fisherm(trainset,i);
+        % Fisherc constructs a classifier on the the mapped training set
         w_fisher = fisherc(trainset*m_fisher);
-        W{i,k} = w_fisher;
+        W{i,k} = w_fisher;  % The constructed classifier is stored in the cell matrix W
+        % Using testc the classifier is tested, with outputs error E and
+        % the number of erroneously classified objects per class C. The
+        % type of testing is set to crisp, since the data is 
         [E(i,k),C(:,i)] = testc((testset*m_fisher)*w_fisher,'crisp');
     end
     [E_min(k),n_opt(k)] = min(E(:,k));
