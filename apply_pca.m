@@ -6,7 +6,9 @@ function [a,W,frac] = apply_pca(a,N)
 % The third output is a vector contraining the cumulative fraction of the
 % variance that is stored in corrisponding component order.
 
-[W,frac] = klm(a,N);
+[W,frac] = pcam(a,N);           % We can also use klm to look at class 
+                                % covariance instead of the overal 
+                                % covariance
 
 a = a*W;
 
