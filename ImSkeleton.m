@@ -3,7 +3,7 @@ clear all;
 close all;
 prwaitbar off;
 
-N = 10;
+N = 100;
 a = prnist(0:9,1:N);
 a = im_resize(a,[20 20]);
 
