@@ -18,10 +18,12 @@ a = im_resize(a,[20 20]);
 %show(a)
 
 %% Split the dataset in training en test data
-
-a_train = seldat(a,[],[],{[1:800];[1:800];[1:800];[1:800];[1:800];[1:800];[1:800];[1:800];[1:800];[1:800]});
-
-a_test = seldat(a,[],[],{[801:1000];[801:1000];[801:1000];[801:1000];[801:1000];[801:1000];[801:1000];[801:1000];[801:1000];[801:1000]});
+n = length(classnames(a));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
+f = 0.5;
+seltrain = repmat({1:N*f},1,n); % Building cell vector of entries [1 : N*f(k)]
+seltest = repmat({N*f+1:N},1,n);% Building cell vector of entries [N*f(k)+1 : end]
+trainset = prdataset(seldat(a,[],[],seltrain)); % Selecting training objects from original dataset
+testset = prdataset(seldat(a,[],[],seltest));   % Selecting test objects from original dataset
 
 %% Apply demensionality reduction on the training data
 
@@ -42,7 +44,7 @@ classifier = fisherc(a_train_kpca);
 
 %% Test the classifier
 
-% Dont forget to also implement the dimensionality reduction mapping if 
+% Dont forget to also implement the dimensionality reduction mapping if
 % dimensionality reduction was used
 
 a_test = prdataset(a_test);
@@ -52,11 +54,11 @@ a_test_pca = a_test * pca_map;
 [error,class_f] = testc(a_test_pca*classifier,'crisp');
 
 %% Applying Fisher mapping and Fisher linear classification to the given images
-n = length(classnames(a));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
+
 figure;
 f = [0.25,0.5,0.75,0.85];   % The fraction of training objects taken from the dataset
 Leg = cell(4,1);
-for k = 1 : 4    
+for k = 1 : 4
     seltrain = repmat({1:N*f(k)},1,n); % Building cell vector of entries [1 : N*f(k)]
     seltest = repmat({N*f(k)+1:N},1,n);% Building cell vector of entries [N*f(k)+1 : end]
     trainset = prdataset(seldat(a,[],[],seltrain)); % Selecting training objects from original dataset
@@ -75,7 +77,7 @@ for k = 1 : 4
         W{i,k} = w_fisher;  % The constructed classifier is stored in the cell matrix W
         % Using testc the classifier is tested, with outputs error E and
         % the number of erroneously classified objects per class C. The
-        % type of testing is set to crisp, since the data is 
+        % type of testing is set to crisp, since the data is
         [E(i,k),C(:,i)] = testc((testset*m_fisher)*w_fisher,'crisp');
     end
     [E_min(k),n_opt(k)] = min(E(:,k));
