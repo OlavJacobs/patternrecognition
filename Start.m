@@ -9,6 +9,28 @@ N = 1000;           % The number of objects taken from the dataset
 
 a = prnist(0:9,1:N);
 a = im_resize(a,[20 20]);
+data_im = my_rep(a);
+%% Split the dataset in training en test data
+n = length(classnames(a));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
+f = 0.5;
+seltrain = repmat({1:N*f},1,n); % Building cell vector of entries [1 : N*f(k)]
+seltest = repmat({N*f+1:N},1,n);% Building cell vector of entries [N*f(k)+1 : end]
+trainset = (seldat(data_im,[],[],seltrain)); % Selecting training objects from original dataset
+testset = (seldat(data_im,[],[],seltest));   % Selecting test objects from original dataset
+
+%% Build multiple Mappings
+m = cell(2,1);
+m{1} = fisherm(trainset,6);
+[m{2},frac] = pcam(trainset,400);
+
+
+%% Test multiple classifiers
+for j = 1 : size(m,1)
+    [w(:,j),c(:,j)] = BuildClassifiers(false,false,trainset,m{j});
+    for i = 1 : size(w(:,j),1)
+        E(i,j) = nist_eval('my_rep.m',w{i,j})
+    end
+end
 
 %%
 %pixelvalues = +prdataset(a);
@@ -17,13 +39,6 @@ a = im_resize(a,[20 20]);
 %featset = +featset;
 %show(a)
 
-%% Split the dataset in training en test data
-n = length(classnames(a));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
-f = 0.5;
-seltrain = repmat({1:N*f},1,n); % Building cell vector of entries [1 : N*f(k)]
-seltest = repmat({N*f+1:N},1,n);% Building cell vector of entries [N*f(k)+1 : end]
-trainset = prdataset(seldat(a,[],[],seltrain)); % Selecting training objects from original dataset
-testset = prdataset(seldat(a,[],[],seltest));   % Selecting test objects from original dataset
 
 %% Apply demensionality reduction on the training data
 
@@ -78,7 +93,7 @@ for k = 1 : 4
         % Using testc the classifier is tested, with outputs error E and
         % the number of erroneously classified objects per class C. The
         % type of testing is set to crisp, since the data is
-        [E(i,k),C(:,i)] = testc((testset*m_fisher)*w_fisher,'crisp');
+        [E(i,k),C(:,i)] = testc(testset,m_fisher*w_fisher,'crisp');
     end
     [E_min(k),n_opt(k)] = min(E(:,k));
     plot(1:(n-1),E(:,k)*100); grid on; hold on;
