@@ -27,14 +27,18 @@ a_test = seldat(a,[],[],{[801:1000];[801:1000];[801:1000];[801:1000];[801:1000];
 
 % We can fill in different dimensionality reduction methods here
 
-[a_train_pca,pca_map,var_frac] = apply_pca(prdataset(a_train),20);
+%[a_train_pca,pca_map,var_frac] = apply_pca(prdataset(a_train),20);
+
+[a_train_kpca,W_train_kpca] = apply_kernel_pca(a_train,20);
 
 %% Train classifier
 
 % We can try out different classifiers here
 
-classifier = fisherc(a_train_pca);
-%classifier = nmc(a_train_pca);
+a_train_kpca = prdataset(a_train_kpca);
+
+classifier = fisherc(a_train_kpca);
+%classifier = nmc(a_train_kpca);
 
 %% Test the classifier
 
