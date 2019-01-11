@@ -1,4 +1,4 @@
-function [a] = my_rep(fileinput)
-a = prdataset(fileinput);
+function [a] = my_rep()
+a = prdataset(prnist(fileinput));
 end
 

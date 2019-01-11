@@ -7,11 +7,11 @@ prwarning OFF
 
 N = 1000;           % The number of objects taken from the dataset
 
-a = prnist(0:9,1:N);
-a = im_resize(a,[20 20]);
-data_im = my_rep(a);
+imfile = prnist(0:9,1:N);
+imfile = im_resize(imfile,[20 20]);
+data_im = my_rep(imfile);
 %% Split the dataset in training en test data
-n = length(classnames(a));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
+n = length(classnames(data_im));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
 f = 0.5;
 seltrain = repmat({1:N*f},1,n); % Building cell vector of entries [1 : N*f(k)]
 seltest = repmat({N*f+1:N},1,n);% Building cell vector of entries [N*f(k)+1 : end]
@@ -28,7 +28,7 @@ m{1} = fisherm(trainset,6);
 for j = 1 : size(m,1)
     [w(:,j),c(:,j)] = BuildClassifiers(false,false,trainset,m{j});
     for i = 1 : size(w(:,j),1)
-        E(i,j) = nist_eval('my_rep.m',w{i,j})
+        E(i,j) = nist_eval('my_rep',w{i,j},10)
     end
 end
 
