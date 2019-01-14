@@ -2,7 +2,7 @@ tic;
 clc
 clearvars
 close all
-prwaitbar ON
+prwaitbar OFF
 prwarning OFF
 
 N = 1000;           % The number of objects taken from the dataset
@@ -22,7 +22,6 @@ m = cell(2,1);
 m{1} = fisherm(trainset,6);
 [m{2},frac] = pcam(trainset,400);
 
-
 %% Test multiple classifiers independently
 for j = 1 : size(m,1)
     [w(:,j),c(:,j)] = BuildClassifiers(false,false,trainset,m{j});
@@ -32,13 +31,16 @@ for j = 1 : size(m,1)
 end
 
 %% Test all classifiers combined, using voting
-W = [];
-for i = 1 : size(w(:,1),1)
-    W = [W ; w{i,1}];
-end
-Wcombined = wvotec(trainset,W);
+[W,U] = deal([]);
 for j = 1 : size(m,1)
-    E_combined(j) = nist_eval('my_rep',(repmat(m{j},size(w(:,j),1))).*W);
+    for i = 1 : size(w(:,j),1)
+        W = [W ; w{i,j}];
+        U = [U ; 1];
+    end
+    W_combined = votec(W);
+    %Et = testc(testset*W_combined,'crisp')
+    E_combined = nist_eval('my_rep',m{j}*W_combined)
+    
 end
 %%
 %pixelvalues = +prdataset(a);
