@@ -2,19 +2,18 @@ tic;
 clc
 clearvars
 close all
-prwaitbar OFF
+prwaitbar ON
 prwarning OFF
 
 N = 1000;           % The number of objects taken from the dataset
 
 imfile = prnist(0:9,1:N);
-imfile = im_resize(imfile,[20 20]);
 data_im = my_rep(imfile);
 %% Split the dataset in training en test data
 n = length(classnames(data_im));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
 f = 0.5;
-seltrain = repmat({1:N*f},1,n); % Building cell vector of entries [1 : N*f(k)]
-seltest = repmat({N*f+1:N},1,n);% Building cell vector of entries [N*f(k)+1 : end]
+seltrain = repmat({1:N*f},1,n); % Building cell vector of entries [1 : N*f]
+seltest = repmat({N*f+1:N},1,n);% Building cell vector of entries [N*f+1 : end]
 trainset = (seldat(data_im,[],[],seltrain)); % Selecting training objects from original dataset
 testset = (seldat(data_im,[],[],seltest));   % Selecting test objects from original dataset
 
@@ -24,14 +23,23 @@ m{1} = fisherm(trainset,6);
 [m{2},frac] = pcam(trainset,400);
 
 
-%% Test multiple classifiers
+%% Test multiple classifiers independently
 for j = 1 : size(m,1)
     [w(:,j),c(:,j)] = BuildClassifiers(false,false,trainset,m{j});
     for i = 1 : size(w(:,j),1)
-        E(i,j) = nist_eval('my_rep',w{i,j},10)
+        E(i,j) = nist_eval('my_rep',m{j}*w{i,j});
     end
 end
 
+%% Test all classifiers combined, using voting
+W = [];
+for i = 1 : size(w(:,1),1)
+    W = [W ; w{i,1}];
+end
+Wcombined = wvotec(trainset,W);
+for j = 1 : size(m,1)
+    E_combined(j) = nist_eval('my_rep',(repmat(m{j},size(w(:,j),1))).*W);
+end
 %%
 %pixelvalues = +prdataset(a);
 %featset = im_features(a,'all');
