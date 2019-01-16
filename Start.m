@@ -21,27 +21,33 @@ testset = (seldat(data_im,[],[],seltest));   % Selecting test objects from origi
 m = cell(2,1);
 m{1} = fisherm(trainset,6);
 [m{2},frac] = pcam(trainset,400);
-
+[mm,nm] = size(m);
 %% Test multiple classifiers independently
-for j = 1 : size(m,1)
+for j = 1 : mm
     [w(:,j),c(:,j)] = BuildClassifiers(false,false,trainset,m{j});
-    for i = 1 : size(w(:,j),1)
+    [mw,nw] = size(w);
+    for i = 1 : mw
         E(i,j) = nist_eval('my_rep',m{j}*w{i,j});
     end
 end
 
-%% Test all classifiers combined, using voting
-[W,U] = deal([]);
-for j = 1 : size(m,1)
-    for i = 1 : size(w(:,j),1)
-        W = [W ; w{i,j}];
-        U = [U ; 1];
+%% Combine classifiers into one, by minimum combining and voting
+for j = 1 : mm
+    [W,U] = deal([]);
+    for i = 1 : mw
+        W = [W m{j}*w{i,j}];
     end
-    W_combined = votec(W);
-    %Et = testc(testset*W_combined,'crisp')
-    E_combined = nist_eval('my_rep',m{j}*W_combined)
-    
+    Wc_median = medianc(W);
+    Wc_vote = votec(W);
+    Wc_wvote = wvotec(W,ones(mw,1));
+    E(mw+1:mw+3,j) = [nist_eval('my_rep',Wc_median) ; ...
+        nist_eval('my_rep',Wc_vote) ; nist_eval('my_rep',Wc_wvote)];
 end
+% Wc1 = minc(W);
+% Wc2 = wvotec(W,ones(size(w,1)));
+% E1 = nist_eval('my_rep',Wc1);
+% E2 = nist_eval('my_rep',Wc2);
+
 %%
 %pixelvalues = +prdataset(a);
 %featset = im_features(a,'all');
@@ -78,40 +84,6 @@ a_test_pca = a_test * pca_map;
 
 [error,class_f] = testc(a_test_pca*classifier,'crisp');
 
-%% Applying Fisher mapping and Fisher linear classification to the given images
-
-figure;
-f = [0.25,0.5,0.75,0.85];   % The fraction of training objects taken from the dataset
-Leg = cell(4,1);
-for k = 1 : 4
-    seltrain = repmat({1:N*f(k)},1,n); % Building cell vector of entries [1 : N*f(k)]
-    seltest = repmat({N*f(k)+1:N},1,n);% Building cell vector of entries [N*f(k)+1 : end]
-    trainset = prdataset(seldat(a,[],[],seltrain)); % Selecting training objects from original dataset
-    testset = prdataset(seldat(a,[],[],seltest));   % Selecting test objects from original dataset
-    W = cell(n-1,length(f));              % Define a cell matrix as classifier storage
-    % Looping over all possible dimensions to map, defined for the Fisher
-    % mapping (defined as input N to fisherm), to find an optimal amount of
-    % dimensions to map to, minimizing the classification error for
-    % selected test- and trainingsets
-    for i = 1 : n-1
-        % The function fisherm constructs a mapping, such that trainset is
-        % mapped to i (up to a maximum of n-1) dimensions.
-        m_fisher = fisherm(trainset,i);
-        % Fisherc constructs a classifier on the the mapped training set
-        w_fisher = fisherc(trainset*m_fisher);
-        W{i,k} = w_fisher;  % The constructed classifier is stored in the cell matrix W
-        % Using testc the classifier is tested, with outputs error E and
-        % the number of erroneously classified objects per class C. The
-        % type of testing is set to crisp, since the data is
-        [E(i,k),C(:,i)] = testc(testset,m_fisher*w_fisher,'crisp');
-    end
-    [E_min(k),n_opt(k)] = min(E(:,k));
-    plot(1:(n-1),E(:,k)*100); grid on; hold on;
-    Leg{k} = strcat('f(k) = ',num2str(f(k)));
-end
-legend(Leg);
-xlabel('Mapped dimensions'); ylabel('Classification Error [%]'); ...
-    title('Classification error of Fisher Mapping/Classification');
 toc;
 
 
