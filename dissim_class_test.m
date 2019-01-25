@@ -30,7 +30,7 @@ testset = prdataset(seldat(a,[],[],seltest));   % Selecting test objects from or
 
 %% Make the classifiers
 
-[W,E,combc,E2] = make_fdsc(trainset,testset,50,10,4); % Build dissimilarity space classifier, see make_fdsc
+[W,E,combc,E2] = make_fdsc(trainset,testset,50,20,4); % Build dissimilarity space classifier, see make_fdsc
 
 [E_min,Id] = min(E); % Find the smallest error of the classifiers
 W_opt = W{Id};       % Classifier corrisponding to the smallest error
@@ -38,5 +38,43 @@ W_opt = W{Id};       % Classifier corrisponding to the smallest error
 E_Bestc = nist_eval('my_rep',W_opt); % Re-evauate the best found classifier, this time with nist_eval
 E_comb = nist_eval('my_rep',combc);  % Test the combined classifier
 
+%% This script is for testing different classifier combiners
 
+% Classifiers are in a cell W
 
+W_ = [];
+
+[~,I] = sort(E);
+W = W(I);
+
+for i = 1:20
+       W_ = [W_ W{i}];  
+end
+
+%% Try a bunch of different combiners (untrained
+tic;
+for i = 1:20
+C_v = votec(W_(:,1:(10+((i-1)*10))));
+C_mean = meanc(W_(:,1:(10+((i-1)*10))));
+C_med = medianc(W_(:,1:(10+((i-1)*10))));
+C_max = maxc(W_(:,1:(10+((i-1)*10))));
+C_min = minc(W_(:,1:(10+((i-1)*10))));
+
+% Test the classifiers using nist_eval
+E_v(i) = nist_eval('my_rep',C_v);
+E_mean(i) = nist_eval('my_rep',C_mean);
+E_med(i) = nist_eval('my_rep',C_med);
+E_max(i) = nist_eval('my_rep',C_max);
+E_min(i) = nist_eval('my_rep',C_min);
+end
+toc
+
+%% Make a plot
+x = 1:20;
+figure
+plot(x,E_v,'-o',x,E_max,'-*',x,E_mean,'-s',x,E_med,'-d',x,E_min,'-x')
+legend('Voted', 'Max','Mean', 'Med','Min','Location','southeast')
+axis([1 20 0 0.04])
+xlabel('Number of classifiers combined')
+ylabel('Classification error')
+%% Trained combiners?
