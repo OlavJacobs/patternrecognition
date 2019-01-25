@@ -11,7 +11,7 @@ imfile = prnist(0:9,1:N);
 data_im = my_rep(imfile);
 %% Split the dataset in training en test data
 n = length(classnames(data_im));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
-f = 0.5;
+f = 0.8;
 seltrain = repmat({1:N*f},1,n); % Building cell vector of entries [1 : N*f]
 seltest = repmat({N*f+1:N},1,n);% Building cell vector of entries [N*f+1 : end]
 trainset = (seldat(data_im,[],[],seltrain)); % Selecting training objects from original dataset
@@ -27,8 +27,11 @@ for j = 1 : mm
     [w(:,j),c(:,j)] = BuildClassifiers(false,false,trainset,m{j});
     [mw,nw] = size(w);
     for i = 1 : mw
-        E(i,j) = nist_eval('my_rep',m{j}*w{i,j});
+        E(i,j) = nist_eval('my_rep',m{j}*w{i,j},100);
     end
+    % Find the lowest error per mapping
+    [Emin(1,j),Imin(1,j)] = min(E(:,j));
+    cmin(1,j) = c(Imin(j),j);
 end
 
 %% Combine classifiers into one, by minimum combining and voting
@@ -39,22 +42,9 @@ for j = 1 : mm
     end
     Wc_median = medianc(W);
     Wc_vote = votec(W);
-    Wc_wvote = wvotec(W,ones(mw,1));
-    E(mw+1:mw+3,j) = [nist_eval('my_rep',Wc_median) ; ...
-        nist_eval('my_rep',Wc_vote) ; nist_eval('my_rep',Wc_wvote)];
+    E(mw+1:mw+2,j) = [nist_eval('my_rep',Wc_median) ; ...
+        nist_eval('my_rep',Wc_vote)];
 end
-% Wc1 = minc(W);
-% Wc2 = wvotec(W,ones(size(w,1)));
-% E1 = nist_eval('my_rep',Wc1);
-% E2 = nist_eval('my_rep',Wc2);
-
-%%
-%pixelvalues = +prdataset(a);
-%featset = im_features(a,'all');
-%labels = getlab(featset');
-%featset = +featset;
-%show(a)
-
 
 %% Apply demensionality reduction on the training data
 
