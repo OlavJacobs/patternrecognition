@@ -19,7 +19,7 @@ for i = 1:M
     W{i} = c;       % Make a cell with the classifiers
 end
 
-combc = votec(W_); %Combine the clasifiers with votec
+combc = minc(W_); %Combine the clasifiers with votec
 
 
 E2 = testc(a_test,combc); % Test the combined classifier
