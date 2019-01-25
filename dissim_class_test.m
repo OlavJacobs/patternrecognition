@@ -14,10 +14,10 @@ prwarning OFF
 
 N = 1000;           % The number of objects taken from the dataset per class
 
-a = prnist(0:9,1:N);
-a = im_resize(a,[20 20]);
+a = prnist(0:9,1:N);        % Take N objects per class from the NIST dataset
+a = im_resize(a,[20 20]);   % Resize the images so they are equal size 20 X 20
 
-% prtime(300) % Increase the maximum time for optimisation
+% prtime(300) % Increase the maximum time for optimisation is nessesary
 
 %% Split the dataset in training en test data
 n = length(classnames(a));             % The number of classes taken into consideration (default: 10 for classes 0 - 9)
@@ -45,14 +45,17 @@ E_comb = nist_eval('my_rep',combc);  % Test the combined classifier
 W_ = [];
 
 [~,I] = sort(E);
-W = W(I);
+W = W(I);               % Sort the classifiers from best preforming to worst
 
 for i = 1:20
-       W_ = [W_ W{i}];  
+       W_ = [W_ W{i}];  % Append the classifiers
 end
 
 %% Try a bunch of different combiners (untrained
 tic;
+
+% Here we test a bunch of combiners for a different number of classifiers
+% (1:20)
 for i = 1:20
 C_v = votec(W_(:,1:(10+((i-1)*10))));
 C_mean = meanc(W_(:,1:(10+((i-1)*10))));
@@ -77,4 +80,3 @@ legend('Voted', 'Max','Mean', 'Med','Min','Location','southeast')
 axis([1 20 0 0.04])
 xlabel('Number of classifiers combined')
 ylabel('Classification error')
-%% Trained combiners?
