@@ -1,4 +1,16 @@
 function [w,c] = BuildClassifiers(prwait,prwarn,trainset,mapping)
+%  This Matlab function builds individual classifiers from supplied data
+%  trainset and mapping. If the mapping is not provided, it is equal to one
+%  such that classifiers are built with unmapped data. Booleans prwait and
+%  prwarn will turn the prwaitbar and prwarnings on or off, respectively. The
+%  output to this fuction is cell vector w, containing all trained
+%  classifiers, and cell vector c containing all classifier names, such that
+%  both can be linked when testing the classifiers.
+%
+%  Note that the classifiers are selected in compliance to the final report
+%  for IN4085 Pattern Recognition, written by Liam Bosland, Olav Jacobs and
+%  Simon Stouten
+
 if nargin == 3 % Two inputs supplied, thus mapping = [] and no mapping is used
     mapping = 1;
 end
@@ -32,4 +44,3 @@ c = cell(length(w),1);
 for i = 1 : length(w)
     c{i} = getname(w{i});
 end
-
