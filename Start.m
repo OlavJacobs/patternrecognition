@@ -43,52 +43,6 @@ for j = 1 : mm
     E(mw+1:mw+3,j) = [nist_eval('my_rep',Wc_median) ; ...
         nist_eval('my_rep',Wc_vote) ; nist_eval('my_rep',Wc_wvote)];
 end
-% Wc1 = minc(W);
-% Wc2 = wvotec(W,ones(size(w,1)));
-% E1 = nist_eval('my_rep',Wc1);
-% E2 = nist_eval('my_rep',Wc2);
-
-%%
-%pixelvalues = +prdataset(a);
-%featset = im_features(a,'all');
-%labels = getlab(featset');
-%featset = +featset;
-%show(a)
-
-
-%% Apply demensionality reduction on the training data
-
-% We can fill in different dimensionality reduction methods here
-
-%[a_train_pca,pca_map,var_frac] = apply_pca(prdataset(a_train),20);
-
-[a_train_kpca,W_train_kpca] = apply_kernel_pca(a_train,20);
-
-%% Train classifier
-
-% We can try out different classifiers here
-
-a_train_kpca = prdataset(a_train_kpca);
-
-classifier = fisherc(a_train_kpca);
-%classifier = nmc(a_train_kpca);
-
-%% Test the classifier
-
-% Dont forget to also implement the dimensionality reduction mapping if
-% dimensionality reduction was used
-
-a_test = prdataset(a_test);
-
-a_test_pca = a_test * pca_map;
-
-[error,class_f] = testc(a_test_pca*classifier,'crisp');
-
-toc;
-
-
-
-
 
 
 
