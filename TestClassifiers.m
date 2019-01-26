@@ -43,12 +43,3 @@ for j = 1 : mm
     E(mw+1:mw+3,j) = [nist_eval('my_rep',Wc_median) ; ...
         nist_eval('my_rep',Wc_vote) ; nist_eval('my_rep',Wc_wvote)];
 end
-
-
-
-
-
-
-
-
-
