@@ -30,7 +30,7 @@ testset = prdataset(seldat(a,[],[],seltest));   % Selecting test objects from or
 
 %% Make the classifiers
 
-[W,E,combc,E2] = make_fdsc(trainset,testset,50,20,4); % Build dissimilarity space classifier, see make_fdsc
+[W,E,combc,E2] = make_fdsc(trainset,testset,5,10,2); % Build dissimilarity space classifier, see make_fdsc
 
 [E_min,Id] = min(E); % Find the smallest error of the classifiers
 W_opt = W{Id};       % Classifier corrisponding to the smallest error
@@ -39,7 +39,7 @@ E_Bestc = nist_eval('my_rep',W_opt); % Re-evauate the best found classifier, thi
 E_comb = nist_eval('my_rep',combc);  % Test the combined classifier
 
 %% This script is for testing different classifier combiners
-
+%{
 % Classifiers are in a cell W
 
 W_ = [];
@@ -47,11 +47,12 @@ W_ = [];
 [~,I] = sort(E);
 W = W(I);               % Sort the classifiers from best preforming to worst
 
-for i = 1:20
+for i = 1:3
        W_ = [W_ W{i}];  % Append the classifiers
 end
-
+%}
 %% Try a bunch of different combiners (untrained
+%{
 tic;
 
 % Here we test a bunch of combiners for a different number of classifiers
@@ -80,3 +81,4 @@ legend('Voted', 'Max','Mean', 'Med','Min','Location','southeast')
 axis([1 20 0 0.04])
 xlabel('Number of classifiers combined')
 ylabel('Classification error')
+%}

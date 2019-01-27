@@ -33,9 +33,10 @@ testset = prdataset(seldat(a,[],[],seltest));   % Selecting test objects from or
 
 %% Make the classifiers
 
-W = make_fdsc(trainset,testset,10,1,1); % Build dissimilarity space classifier, see make_fdsc
+[W,~,Wcomb] = make_fdsc_case2(trainset,testset,10,1,1); % Build dissimilarity space classifier, see make_fdsc_case2
 
 E_NIST = E_NIST + nist_eval('my_rep',W{1}); % Sum all the errors calculated with nist eval
+
 
 end
 
