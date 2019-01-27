@@ -22,25 +22,24 @@ if prwarn == false
 end
 a_train = trainset*mapping;
 
-w{1} = fisherc(a_train);
-w{2} = nmc(a_train);
+w{1,1} = fisherc(a_train);
+w{2,1} = nmc(a_train);
 kc = 10;
 for k = 1 : kc
-    w{2+k} = knnc(a_train,k);
+    w{2+k,1} = knnc(a_train,k);
 end
-%w{3+kc} = svc(a_train);
-w{3+kc} = perlc(a_train);
-%w{4+kc} = bayesc(a_train,[],getlab(trainset));
-w{4+kc} = ldc(a_train);
-w{5+kc} = qdc(a_train);
+w{3+kc,1} = perlc(a_train);
+w{4+kc,1} = ldc(a_train);
+w{5+kc,1} = qdc(a_train);
 pc = 10;
 for p = 1 : pc
-    w{5+kc+p} = parzenc(a_train,0.05*p);
+    w{5+kc+p,1} = parzenc(a_train,0.05*p);
 end
-w{6+kc+pc} = treec(a_train,[],0,[]);
-w{7+kc+pc} = logmlc(a_train);
+w{6+kc+pc,1} = treec(a_train,[],0,[]);
+w{7+kc+pc,1} = logmlc(a_train);
 
 c = cell(length(w),1);
 for i = 1 : length(w)
     c{i} = getname(w{i});
+end
 end
